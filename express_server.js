@@ -7,6 +7,20 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set('view engine', 'ejs')
 
+function generateRandomString(length) {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYXabcdefghijklmnopqrstuvwxyz0123456789'
+
+  let result = "";
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    result +=characters.charAt(Math.floor(Math.random() * charactersLength))
+  }
+  return result;
+};
+//Received function from https://www.programiz.com/javascript/examples/generate-random-strings
+
+
 const urlDatabase = {
   'b2xVn2': 'http://www.lighthouselabs.ca',
   '9sm5xK': 'http://www,google.com'
@@ -30,6 +44,8 @@ app.get('/urls/:shortURL', (req, res) => {
 
   app.post('/urls', (req, res) => {
     console.log(req.body);
+    let randomString = generateRandomString(6);
+    urlDatabase[randomString] = req.body.longURL;
     res.send('OK');
   })
 
@@ -55,8 +71,3 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-function generateRandomString() {
-
-};
-
-generateRandomString();
