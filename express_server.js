@@ -28,13 +28,13 @@ const generateRandomString = function(length) {
 
 
 app.get('/urls', (req, res) => {
-  const templateVars = {username: req.cookies['username'], urls: urlDatabase};
+  const templateVars = {username: req.cookies['username'], urls: urlDatabase};  
   res.render('urls_index', templateVars);
   
 });
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = {username: req.cookies['username']};
+  const templateVars = {username: req.cookies['username']};  
 
   res.render('urls_new', templateVars);
 });
@@ -48,12 +48,14 @@ app.post('/urls', (req, res)=> {
   res.redirect(`/urls/${randomString}`);
 });
 
+//Sends the users allowing them to edit the longURL 
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {username: req.cookies['username'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   console.log(req.cookies['username']);
   res.render('urls_show', templateVars);
 });
 
+//Sends the user to a blank website that says hello
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
@@ -79,7 +81,6 @@ app.post('/urls/:id', (req, res)=> {
 
 //To log the user out
 app.post('/logout', (req,res)=> {
-
   res.clearCookie('username').redirect('/urls');
 });
 
@@ -88,10 +89,12 @@ app.post('/login', (req, res)=> {
   res.cookie('username', req.body.username).redirect('/urls');
 });
 
+//provide the urlDatabase in a JSON format
 app.get('/urls.json', (req, res)=> {
   res.json(urlDatabase);
 });
 
+//Sends the user to a URL where they see Hello World in HTML formatting
 app.get('/hello', (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
