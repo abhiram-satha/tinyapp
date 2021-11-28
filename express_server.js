@@ -28,31 +28,31 @@ const generateRandomString = function(length) {
 
 
 app.get('/urls', (req, res) => {
-  const templateVars = {username: req.cookies['username'], urls: urlDatabase}
-  res.render('urls_index', templateVars)
+  const templateVars = {username: req.cookies['username'], urls: urlDatabase};
+  res.render('urls_index', templateVars);
   
-})
+});
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = {username: req.cookies['username']} ;
+  const templateVars = {username: req.cookies['username']};
 
-  res.render('urls_new', templateVars)
-})
+  res.render('urls_new', templateVars);
+});
 
 app.post('/urls', (req, res)=> {
   const randomString = generateRandomString(6);
-  const longURL = Object.values(req.body)
+  const longURL = Object.values(req.body);
 
   urlDatabase[randomString] = longURL[0];
   console.log(urlDatabase);
-  res.redirect(`/urls/${randomString}`)
-})
+  res.redirect(`/urls/${randomString}`);
+});
 
 app.get('/urls/:shortURL', (req, res) => {
-const templateVars = {username: req.cookies['username'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-console.log(req.cookies['username']);
+  const templateVars = {username: req.cookies['username'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  console.log(req.cookies['username']);
   res.render('urls_show', templateVars);
-})
+});
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -61,32 +61,32 @@ app.get('/', (req, res) => {
 //redirects the user to the website
 app.get('/u/:shortURL', (req, res)=> {
   res.redirect(urlDatabase[req.params.shortURL]);
-})
+});
 
 //POST Route to remove a URL resource
 app.post('/urls/:shortURL/delete', (req, res)=> {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
-})
+});
 
 //Able to edit the long URL
 app.post('/urls/:id', (req, res)=> {
   const shortURL = req.params.id;
-  const longURL = Object.values(req.body)
+  const longURL = Object.values(req.body);
   urlDatabase[shortURL] = longURL[0];
   res.redirect('/urls');
-})
+});
 
 //To log the user out
 app.post('/logout', (req,res)=> {
 
-  res.clearCookie('username').redirect('/urls')
-})
+  res.clearCookie('username').redirect('/urls');
+});
 
 //To login
 app.post('/login', (req, res)=> {
-  res.cookie('username', req.body.username).redirect('/urls')
-})
+  res.cookie('username', req.body.username).redirect('/urls');
+});
 
 app.get('/urls.json', (req, res)=> {
   res.json(urlDatabase);
