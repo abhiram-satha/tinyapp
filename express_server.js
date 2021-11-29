@@ -13,6 +13,10 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  
+}
+
 const generateRandomString = function(length) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYXabcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -39,19 +43,35 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
+//Creating a registration page
+app.get('/register', (req, res) => {
+  const templateVars = {username: req.cookies['username']};
+  res.render('./registration', templateVars);
+})
+
+app.post('/register', (req, res)=> {
+  const generateID = generateRandomString(4);
+  users[generateID]= {};
+  users[generateID]['id'] = generateID;
+  users[generateID]['email'] = req.body['email'];
+  users[generateID]['password'] = req.body['password'];
+
+  res.redirect('/urls')
+})
+
 app.post('/urls', (req, res)=> {
   const randomString = generateRandomString(6);
   const longURL = Object.values(req.body);
 
   urlDatabase[randomString] = longURL[0];
-  console.log(urlDatabase);
+  console.log(Object.values(req.body));
   res.redirect(`/urls/${randomString}`);
 });
 
 //Sends the users allowing them to edit the longURL 
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {username: req.cookies['username'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  console.log(req.cookies['username']);
+  //console.log(req.cookies['username']);
   res.render('urls_show', templateVars);
 });
 
