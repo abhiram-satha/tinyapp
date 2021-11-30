@@ -15,7 +15,7 @@
             <button class="btn btn-outline-dark" style="position: absolute; right: 30px; top: 5px"  type="submit">Login</button>
           </form>
         <% } else { %>
-          <span><h5 class="text-muted" style='display: inline; position: absolute; right: 110px; top: 5px'>Logged In As: <%= username%> </h5></span>
+          <span><h5 class="text-muted" style='display: inline; position: absolute; right: 110px; top: 5px'>Logged In As: <%= username['email']%> </h5></span>
           <form method="POST" action="/logout">
             <button class="btn btn-outline-dark" style="position: absolute; right: 30px; top: 5px"  type="submit">Logout</button>
           </form>

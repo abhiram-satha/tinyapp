@@ -30,25 +30,6 @@ const generateRandomString = function(length) {
 };
 //Received function from https://www.programiz.com/javascript/examples/generate-random-strings
 
-
-app.get('/urls', (req, res) => {
-  const templateVars = {username: req.cookies['username'], urls: urlDatabase};  
-  res.render('urls_index', templateVars);
-  
-});
-
-app.get('/urls/new', (req, res) => {
-  const templateVars = {username: req.cookies['username']};  
-
-  res.render('urls_new', templateVars);
-});
-
-//Creating a registration page
-app.get('/register', (req, res) => {
-  const templateVars = {username: req.cookies['username']};
-  res.render('./registration', templateVars);
-})
-
 app.post('/register', (req, res)=> {
   const generateID = generateRandomString(4);
   users[generateID]= {};
@@ -56,8 +37,31 @@ app.post('/register', (req, res)=> {
   users[generateID]['email'] = req.body['email'];
   users[generateID]['password'] = req.body['password'];
 
-  res.redirect('/urls')
+  res.cookie('user_id', users[generateID]['id']).redirect('/urls')
 })
+
+app.get('/urls', (req, res) => {
+  const cookieValue = req.cookies['user_id'];
+  const templateVars = {username: users[cookieValue], urls: urlDatabase}; 
+
+  res.render('urls_index', templateVars);
+  
+});
+
+app.get('/urls/new', (req, res) => {
+  const cookieValue = req.cookies['user_id'];
+  const templateVars = {username: users[cookieValue]}; 
+
+  res.render('urls_new', templateVars);
+});
+
+//Creating a registration page
+app.get('/register', (req, res) => {
+  const templateVars = {username: req.cookies['user_id']};
+  res.render('./registration', templateVars);
+})
+
+
 
 app.post('/urls', (req, res)=> {
   const randomString = generateRandomString(6);
@@ -70,7 +74,8 @@ app.post('/urls', (req, res)=> {
 
 //Sends the users allowing them to edit the longURL 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = {username: req.cookies['username'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const cookieValue = req.cookies['user_id'];
+  const templateVars = {username: users[cookieValue], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   //console.log(req.cookies['username']);
   res.render('urls_show', templateVars);
 });
@@ -101,12 +106,12 @@ app.post('/urls/:id', (req, res)=> {
 
 //To log the user out
 app.post('/logout', (req,res)=> {
-  res.clearCookie('username').redirect('/urls');
+  res.clearCookie('user_id').redirect('/urls');
 });
 
 //To login
 app.post('/login', (req, res)=> {
-  res.cookie('username', req.body.username).redirect('/urls');
+  res.cookie('username', req.cookies['user_id']).redirect('/urls');
 });
 
 //provide the urlDatabase in a JSON format
