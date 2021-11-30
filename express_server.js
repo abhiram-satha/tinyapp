@@ -30,13 +30,32 @@ const generateRandomString = function(length) {
 };
 //Received function from https://www.programiz.com/javascript/examples/generate-random-strings
 
+const objectLoop = function(objectToLoop, email) {
+  for (const key in objectToLoop) {
+    if(objectToLoop[key]['email'] === email) {
+    console.log(objectToLoop[key]['email']);
+    console.log(email)
+    return false;
+    }
+  }
+  return true;
+}
+
 app.post('/register', (req, res)=> {
+  if (!req.body['email'] || !req.body['password']) {
+    res.status(400).send("Registration form is incomplete")
+    return;
+  }
+  const loopUserObject = objectLoop(users, req.body['email']);
+  if (!loopUserObject) {
+    res.status(400).send("This email address is already registered")
+    return;
+  }
   const generateID = generateRandomString(4);
   users[generateID]= {};
   users[generateID]['id'] = generateID;
   users[generateID]['email'] = req.body['email'];
   users[generateID]['password'] = req.body['password'];
-
   res.cookie('user_id', users[generateID]['id']).redirect('/urls')
 })
 
@@ -61,7 +80,16 @@ app.get('/register', (req, res) => {
   res.render('./registration', templateVars);
 })
 
+//Creating a Login Page
+app.get('/login', (req, res)=> {
 
+  const templateVars = {username: req.cookies['user_id']};
+  res.render('./login', templateVars)
+})
+
+app.post('./login', (req, res)=> {
+
+})
 
 app.post('/urls', (req, res)=> {
   const randomString = generateRandomString(6);
