@@ -8,13 +8,11 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <%if (!username) { %>
+        <%if (!user_id || user_id === undefined) { %>
           <a class="nav-item nav-link" href="/register">Register</a>
           <a class="nav-item nav-link" href="/login">Login</a>
-        <% } %>
-        <% if (!username) { %>
         <% } else { %>
-          <span><h5 class="text-muted" style='display: inline; position: absolute; right: 110px; top: 5px'>Logged In As: <%= username['email']%> </h5></span>
+          <span><h5 class="text-muted" style='display: inline; position: absolute; right: 110px; top: 5px'>Logged In As: <%= user_id%> </h5></span>
           <form method="POST" action="/logout">
             <button class="btn btn-outline-dark" style="position: absolute; right: 30px; top: 5px"  type="submit">Logout</button>
           </form>

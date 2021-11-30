@@ -13,9 +13,9 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+//Creating an empty users object to create a users database
 const users = {
-  
-}
+};
 
 const generateRandomString = function(length) {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYXabcdefghijklmnopqrstuvwxyz0123456789';
@@ -41,7 +41,20 @@ const objectLoop = function(objectToLoop, email) {
   return true;
 }
 
+const loginLoop = function(objectToLoop, email, password) {
+  for (const key in objectToLoop) {
+    if(objectToLoop[key]['email'] === email) {
+      if (objectToLoop[key]['password'] === password) {
+        console.log(users)
+      return false;
+      }
+    }
+  }
+  return true;
+}
+
 app.post('/register', (req, res)=> {
+  
   if (!req.body['email'] || !req.body['password']) {
     res.status(400).send("Registration form is incomplete")
     return;
@@ -56,12 +69,12 @@ app.post('/register', (req, res)=> {
   users[generateID]['id'] = generateID;
   users[generateID]['email'] = req.body['email'];
   users[generateID]['password'] = req.body['password'];
-  res.cookie('user_id', users[generateID]['id']).redirect('/urls')
+  res.cookie('user_id', req.body['email']).redirect('/urls')
 })
 
 app.get('/urls', (req, res) => {
   const cookieValue = req.cookies['user_id'];
-  const templateVars = {username: users[cookieValue], urls: urlDatabase}; 
+  const templateVars = {user_id: req.cookies['user_id'], urls: urlDatabase}; 
 
   res.render('urls_index', templateVars);
   
@@ -69,26 +82,37 @@ app.get('/urls', (req, res) => {
 
 app.get('/urls/new', (req, res) => {
   const cookieValue = req.cookies['user_id'];
-  const templateVars = {username: users[cookieValue]}; 
+  const templateVars = {user_id: req.cookies['user_id']}; 
 
   res.render('urls_new', templateVars);
 });
 
 //Creating a registration page
 app.get('/register', (req, res) => {
-  const templateVars = {username: req.cookies['user_id']};
+  const templateVars = {user_id: req.cookies['user_id']};
   res.render('./registration', templateVars);
+})
+
+
+
+app.post('/login', (req, res)=> {
+  // if (req.cookies['user_id']) {
+  //   res.cookie('user_id', req.cookies['user_id']).redirect('/urls');
+  //   return
+  // }
+  const loginCredentials = loginLoop(users, req.body['email'], req.body['password'])
+  if (loginCredentials) {
+    res.status(404).send('Login failed').clearCookie('user_id');
+    return;
+  }
+  res.cookie('user_id', req.body['email']).redirect('/urls');
 })
 
 //Creating a Login Page
 app.get('/login', (req, res)=> {
 
-  const templateVars = {username: req.cookies['user_id']};
+  const templateVars = {user_id: req.cookies['user_id']};
   res.render('./login', templateVars)
-})
-
-app.post('./login', (req, res)=> {
-
 })
 
 app.post('/urls', (req, res)=> {
@@ -103,8 +127,7 @@ app.post('/urls', (req, res)=> {
 //Sends the users allowing them to edit the longURL 
 app.get('/urls/:shortURL', (req, res) => {
   const cookieValue = req.cookies['user_id'];
-  const templateVars = {username: users[cookieValue], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  //console.log(req.cookies['username']);
+  const templateVars = {user_id: req.cookies['user_id'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render('urls_show', templateVars);
 });
 
@@ -135,11 +158,6 @@ app.post('/urls/:id', (req, res)=> {
 //To log the user out
 app.post('/logout', (req,res)=> {
   res.clearCookie('user_id').redirect('/urls');
-});
-
-//To login
-app.post('/login', (req, res)=> {
-  res.cookie('username', req.cookies['user_id']).redirect('/urls');
 });
 
 //provide the urlDatabase in a JSON format
