@@ -9,8 +9,8 @@ app.set('view engine', 'ejs');
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: ""},
+  "9sm5xK": { longURL: "http://www.google.com", userID: ""}
 };
 
 //Creating an empty users object to create a users database
@@ -73,6 +73,9 @@ app.post('/register', (req, res)=> {
 })
 
 app.get('/urls', (req, res) => {
+  if(!req.cookies['user_id']) {
+    res.redirect('/login');
+  }
   const cookieValue = req.cookies['user_id'];
   const templateVars = {user_id: req.cookies['user_id'], urls: urlDatabase}; 
 
@@ -116,18 +119,27 @@ app.get('/login', (req, res)=> {
 })
 
 app.post('/urls', (req, res)=> {
+  console.log(req.body)
+  console.log('database', urlDatabase)
   const randomString = generateRandomString(6);
-  const longURL = Object.values(req.body);
-
-  urlDatabase[randomString] = longURL[0];
-  console.log(Object.values(req.body));
+  const longURL = req.body['longURL'];
+  //const userID = users;
+  for (const userID in users) {
+    if (req.cookies['user_id'] === users[userID]['email']) {
+     urlDatabase[randomString] = {longURL, userID};
+      console.log('database', urlDatabase);
+      console.log(Object.values(req.body));
+    }
+  }
+  
   res.redirect(`/urls/${randomString}`);
 });
 
 //Sends the users allowing them to edit the longURL 
 app.get('/urls/:shortURL', (req, res) => {
   const cookieValue = req.cookies['user_id'];
-  const templateVars = {user_id: req.cookies['user_id'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = {user_id: req.cookies['user_id'], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]['longURL'] };
+  console.log(urlDatabase)
   res.render('urls_show', templateVars);
 });
 
@@ -138,7 +150,7 @@ app.get('/', (req, res) => {
 
 //redirects the user to the website
 app.get('/u/:shortURL', (req, res)=> {
-  res.redirect(urlDatabase[req.params.shortURL]);
+  res.redirect(urlDatabase[req.params.shortURL]['longURL']);
 });
 
 //POST Route to remove a URL resource
@@ -149,9 +161,7 @@ app.post('/urls/:shortURL/delete', (req, res)=> {
 
 //Able to edit the long URL
 app.post('/urls/:id', (req, res)=> {
-  const shortURL = req.params.id;
-  const longURL = Object.values(req.body);
-  urlDatabase[shortURL] = longURL[0];
+  urlDatabase[req.params.id]['longURL'] = req.body['longURL'];
   res.redirect('/urls');
 });
 
