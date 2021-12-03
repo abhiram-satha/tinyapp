@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "ejs");
@@ -45,7 +46,10 @@ const objectLoop = function (objectToLoop, email) {
 const loginLoop = function (objectToLoop, email, password) {
   for (const key in objectToLoop) {
     if (objectToLoop[key]["email"] === email) {
-      if (objectToLoop[key]["password"] === password) {
+      console.log(bcrypt.hashSync(password, 10))
+      if (bcrypt.compareSync(password, objectToLoop[key]["password"]))
+        // objectToLoop[key]["password"] === password)
+         {
         console.log(users);
         return false;
       }
@@ -85,8 +89,9 @@ app.post("/register", (req, res) => {
   users[generateID] = {};
   users[generateID]["id"] = generateID;
   users[generateID]["email"] = req.body["email"];
-  users[generateID]["password"] = req.body["password"];
-  console.log(users);
+  const password = req.body["password"]
+  users[generateID]["password"] = bcrypt.hashSync(password, 10);  
+  console.log('registering users', users);
   res.cookie("user_id", req.body["email"]).redirect("/urls");
 });
 
@@ -129,6 +134,7 @@ app.get("/register", (req, res) => {
   const templateVars = { user_id: req.cookies["user_id"] };
   res.render("./registration", templateVars);
 });
+
 
 app.post("/login", (req, res) => {
   // if (req.cookies['user_id']) {
