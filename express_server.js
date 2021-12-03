@@ -2,11 +2,18 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+//const cookieParser = require("cookie-parser");
+const cookieSession =require('cookie-session')
 const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+//app.use(cookieParser());
 app.set("view engine", "ejs");
+
+app.use(cookieSession( {
+  name: "session",
+  keys: ['key1'],
+
+}))
 
 const urlDatabase = {
   'b2xVn2': { longURL: "http://www.lighthouselabs.ca", userID: "" },
@@ -92,17 +99,21 @@ app.post("/register", (req, res) => {
   const password = req.body["password"]
   users[generateID]["password"] = bcrypt.hashSync(password, 10);  
   console.log('registering users', users);
-  res.cookie("user_id", req.body["email"]).redirect("/urls");
+  req.session.user_id = req.body["email"]
+  req.body.cookie = req.session.user_id;
+  console.log(req.session.user_id)
+  res.redirect("/urls");
 });
 
 app.get("/urls", (req, res) => {
-  if (!req.cookies["user_id"]) {
-    res.send("Please register or login to view this page");
+    console.log('cookie', req.session.user_id)
+  if (!req.session.user_id) {
+    return res.send("Please register or login to view this page");
   }
   let urlDatabaseUpdated = {};
   //console.log(users);
   for (const user in users) {
-    if (users[user]["email"] === req.cookies["user_id"]) {
+    if (users[user]["email"] === req.session.user_id) {
       for (const urlID in urlDatabase) {
         if (urlDatabase[urlID]["userID"] === users[user]["id"])
           urlDatabaseUpdated[urlID] = urlDatabase[urlID]["longURL"];
@@ -111,9 +122,9 @@ app.get("/urls", (req, res) => {
     }
   }
   //console.log('user stuff',userURLDatabase);
-  const cookieValue = req.cookies["user_id"];
+  const cookieValue = req.session.user_id;
   const templateVars = {
-    user_id: req.cookies["user_id"],
+    user_id: req.session.user_id,
     urls: urlDatabaseUpdated,
   };
 
@@ -123,15 +134,15 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const cookieValue = req.cookies["user_id"];
-  const templateVars = { user_id: req.cookies["user_id"] };
+  const cookieValue = req.session.user_id;
+  const templateVars = { user_id: req.session.user_id };
 
   res.render("urls_new", templateVars);
 });
 
 //Creating a registration page
 app.get("/register", (req, res) => {
-  const templateVars = { user_id: req.cookies["user_id"] };
+  const templateVars = { user_id: req.session.user_id };
   res.render("./registration", templateVars);
 });
 
@@ -155,7 +166,7 @@ app.post("/login", (req, res) => {
 
 //Creating a Login Page
 app.get("/login", (req, res) => {
-  const templateVars = { user_id: req.cookies["user_id"] };
+  const templateVars = { user_id: req.session.user_id };
   res.render("./login", templateVars);
 });
 
@@ -164,7 +175,7 @@ app.post("/urls", (req, res) => {
   const longURL = req.body["longURL"];
   //const userID = users;
   for (const userID in users) {
-    if (req.cookies["user_id"] === users[userID]["email"]) {
+    if (req.session.user_id === users[userID]["email"]) {
       urlDatabase[randomString] = { longURL, userID };
     }
   }
@@ -198,12 +209,12 @@ const findUrlOfUser = (urlId, email) => {
 
 //Sends the users allowing them to edit the longURL
 app.get("/urls/:shortURL", (req, res) => {
-  const url = findUrlOfUser(req.params.shortURL, req.cookies["user_id"]);
+  const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
   console.log("urlFirst", url, urlDatabase);
   let templateVars = {};
   if (url.userID) {
     templateVars = {
-      user_id: req.cookies["user_id"],
+      user_id: req.session.user_id,
       shortURL: req.params.shortURL,
       longURL: url.longURL,
       message: null,
@@ -211,7 +222,7 @@ app.get("/urls/:shortURL", (req, res) => {
     return res.render("urls_show", templateVars);
   } else {
     templateVars = {
-      user_id: req.cookies["user_id"],
+      user_id: req.session.user_id,
       shortURL: req.params.shortURL,
       longURL: url.longURL,
       message: "You are not the original creator of this link!",
@@ -262,11 +273,11 @@ app.get("/u/:shortURL", (req, res) => {
 
 //POST Route to remove a URL resource
 app.post("/urls/:shortURL/delete", (req, res) => {
-  const url = findUrlOfUser(req.params.shortURL, req.cookies["user_id"]);
+  const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
   if (url.userID) {
     const a = delete urlDatabase[req.params.shortURL];
     console.log("a", a, urlDatabase);
-    res.redirect("/urls");
+    return res.redirect("/urls");
   }
   else {
     res.send('You do not have authorization to delete')
@@ -286,8 +297,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 //Able to edit the long URL
 app.post("/urls/:id", (req, res) => {
-  console.log('url:::::::::::::::', urlDatabase[req.params.id]["userID"], req.cookies["user_id"])
-  const url = findUrlOfUser(req.params.id, req.cookies["user_id"]);
+  console.log('url:::::::::::::::', urlDatabase[req.params.id]["userID"], req.session.user_id)
+  const url = findUrlOfUser(req.params.id, req.session.user_id);
   if (url.userID) {
     urlDatabase[req.params.id]["longURL"] = req.body["longURL"];
     res.redirect("/urls");
@@ -299,7 +310,9 @@ app.post("/urls/:id", (req, res) => {
 
 //To log the user out
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id").redirect("/urls");
+  req.session = null;
+  res.redirect('/login');
+  //res.clearCookie("user_id").redirect("/urls");
 });
 
 //provide the urlDatabase in a JSON format
