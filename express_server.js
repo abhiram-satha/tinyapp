@@ -2,11 +2,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bodyParser = require("body-parser");
-//const cookieParser = require("cookie-parser");
 const cookieSession =require('cookie-session')
 const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(cookieParser());
 app.set("view engine", "ejs");
 
 app.use(cookieSession( {
@@ -161,7 +159,8 @@ app.post("/login", (req, res) => {
     res.status(404).send("Login failed").clearCookie("user_id");
     return;
   }
-  res.cookie("user_id", req.body["email"]).redirect("/urls");
+  req.session.user_id = req.body["email"];
+  res.redirect("/urls");
 });
 
 //Creating a Login Page
@@ -268,6 +267,9 @@ app.get("/", (req, res) => {
 
 //redirects the user to the website
 app.get("/u/:shortURL", (req, res) => {
+  if(!urlDatabase[req.params.shortURL]["longURL"]) {
+    return res.send('Please include the full URL with http://')
+  }
   res.redirect(urlDatabase[req.params.shortURL]["longURL"]);
 });
 
