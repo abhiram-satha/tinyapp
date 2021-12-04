@@ -1,5 +1,23 @@
-# tinyapp
+# TinyApp Project
 
-This App will accept long longURLS and provide a shortURL consisting of 6 characters.  Implemented a login feature that uses a username cookies to track the user across the site.  
+TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
 
-Closing the Terminal will cause the TinyApp to lose the urls that were entered.  
+## Final Product
+
+!["screenshot description"](#)
+!["screenshot description"](#)
+
+## Dependencies
+
+- Node.js
+- Express
+- EJS
+- bcrypt
+- body-parser
+- cookie-session
+
+
+## Getting Started
+
+- Install all dependencies (using the `npm install` command).
+- Run the development web server using the `node express_server.js` command. 

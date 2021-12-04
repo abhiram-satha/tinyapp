@@ -1,6 +1,6 @@
 <header>
   <nav class="navbar navbar-expand-lg bg-dark">
-    <a class="navbar-brand" href="/urls">TinyApp</a>
+    <a class="navbar-brand" href="/urls"><strong>TinyApp</strong></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -11,12 +11,12 @@
         <% } %>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <%if (!user_id || user_id === undefined) { %>
-          <a class="nav-item nav-link" href="/register">Register</a>
-          <a class="nav-item nav-link" href="/login">Login</a>
+          <a class="nav-item nav-link" style="position: absolute; right: 8%" href="/register">Register</a>
+          <a class="nav-item nav-link" style="position: absolute; right: 2%" href="/login">Login</a>
         <% } else { %>
-          <span><h6 class="nav-item nav-link" style='display: inline; position: absolute; right: 110px; top: 8px'>Logged In As: <%= user_id%> </h6></span>
+          <span><h6 class="nav-item nav-link" style='display: inline; position: absolute; right: 10%; top: 15%; color: whitesmoke'>Logged In As: <%= user_id%> </h6></span>
           <form method="POST" action="/logout">
-            <button class="btn btn-outline-success my-2 my-sm-0" style="position: absolute; right: 30px; top: 5px"  type="submit">Logout</button>
+            <button class="btn btn-outline-success my-2 my-sm-0" style="position: absolute; right: 2%; top: 15%"  type="submit">Logout</button>
           </form>
         <% } %>
       </div>
