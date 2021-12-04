@@ -162,7 +162,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
 
   let templateVars = {};
-  if (url.userID) {
+  if (url.userID === urlDatabase[req.params.shortURL['userID']]) {
     templateVars = {
       user_id: req.session.user_id,
       shortURL: req.params.shortURL,
