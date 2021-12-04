@@ -23,19 +23,8 @@ const generateRandomString = function(length) {
 
 
 
-const loginLoop = function(objectToLoop, email, password){
-  for (const key in objectToLoop) {
-    if (objectToLoop[key]["email"] === email) {
-      if (bcrypt.compareSync(password, objectToLoop[key]["password"])) {
-        return false;
-      }
-    }
-  }
-  return true;
-};
 
 module.exports = {
   objectLoop,
   generateRandomString,
-  loginLoop
 }

@@ -6,12 +6,24 @@ const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
-const {objectLoop, generateRandomString, loginLoop} = require('./helpers');
+const {objectLoop, generateRandomString, } = require('./helpers');
 app.use(cookieSession({
   name: "session",
   keys: ['key1'],
 
 }));
+
+
+const loginLoop = function(objectToLoop, email, password){
+  for (const key in objectToLoop) {
+    if (objectToLoop[key]["email"] === email) {
+      if (bcrypt.compareSync(password, objectToLoop[key]["password"])) {
+        return false;
+      }
+    }
+  }
+  return true;
+};
 
 const urlDatabase = {
   'b2xVn2': { longURL: "http://www.lighthouselabs.ca", userID: "" },
@@ -130,12 +142,22 @@ const findUrlOfUser = (urlId, email) => {
   if (user.id && url && url.userID === user.id) {
     return url;
   } else {
-    return {};
+     const url = urlDatabase[urlId];
+     return url;
+    //return {};
   }
 };
 
+let counter = {};
+
 //Sends the users allowing them to edit the longURL
 app.get("/urls/:shortURL", (req, res) => {
+  if (!counter[req.params.shortURL]) {
+    counter[req.params.shortURL] = 1;
+  } else{
+    counter[req.params.shortURL] += 1;
+  }
+  
   const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
   let templateVars = {};
   if (url.userID) {
@@ -144,6 +166,7 @@ app.get("/urls/:shortURL", (req, res) => {
       shortURL: req.params.shortURL,
       longURL: url.longURL,
       message: null,
+      counterURL: counter[req.params.shortURL], 
     };
     return res.render("urls_show", templateVars);
   } else {
@@ -152,6 +175,7 @@ app.get("/urls/:shortURL", (req, res) => {
       shortURL: req.params.shortURL,
       longURL: url.longURL,
       message: "You are not the original creator of this link!",
+      counterURL: counter[req.params.shortURL],
     };
   }
   return res.render("urls_show", templateVars);
