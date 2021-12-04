@@ -12,6 +12,7 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
         <%if (!user_id || user_id === undefined) { %>
           <a class="nav-item nav-link" style="position: absolute; right: 8%" href="/register">Register</a>
+          <span>|</span>
           <a class="nav-item nav-link" style="position: absolute; right: 2%" href="/login">Login</a>
         <% } else { %>
           <span><h6 class="nav-item nav-link" style='display: inline; position: absolute; right: 10%; top: 15%; color: whitesmoke'>Logged In As: <%= user_id%> </h6></span>

@@ -149,16 +149,18 @@ const findUrlOfUser = (urlId, email) => {
 };
 
 let counter = {};
+let cookieCounter = {};
 
 //Sends the users allowing them to edit the longURL
 app.get("/urls/:shortURL", (req, res) => {
+
   if (!counter[req.params.shortURL]) {
     counter[req.params.shortURL] = 1;
   } else{
     counter[req.params.shortURL] += 1;
   }
-  
   const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
+
   let templateVars = {};
   if (url.userID) {
     templateVars = {
@@ -166,7 +168,7 @@ app.get("/urls/:shortURL", (req, res) => {
       shortURL: req.params.shortURL,
       longURL: url.longURL,
       message: null,
-      counterURL: counter[req.params.shortURL], 
+      counterURL: counter[req.params.shortURL],
     };
     return res.render("urls_show", templateVars);
   } else {
@@ -183,7 +185,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 //Sends the user to a blank website that says hello
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect("/login");
 });
 
 //redirects the user to the website
