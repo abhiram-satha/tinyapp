@@ -47,11 +47,15 @@ app.post("/register", (req, res) => {
     return;
   }
   const generateID = generateRandomString(4);
-  users[generateID] = {};
-  users[generateID]["id"] = generateID;
-  users[generateID]["email"] = req.body["email"];
   const password = req.body["password"];
-  users[generateID]["password"] = bcrypt.hashSync(password, 10); 
+
+  const newUser = {
+    id:  generateID,
+    email: req.body["email"],
+    password: bcrypt.hashSync(password, 10)
+  }
+  users[generateID] = newUser;
+  
   req.session.user_id = req.body["email"];
   req.body.cookie = req.session.user_id;
   res.redirect("/urls");
@@ -149,7 +153,6 @@ const findUrlOfUser = (urlId, email) => {
 };
 
 let counter = {};
-let cookieCounter = {};
 
 //Sends the users allowing them to edit the longURL
 app.get("/urls/:shortURL", (req, res) => {
