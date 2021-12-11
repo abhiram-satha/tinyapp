@@ -116,9 +116,10 @@ app.get("/login", (req, res) => {
 app.post("/urls", (req, res) => {
   const randomString = generateRandomString(6);
   const longURL = req.body["longURL"];
+  const userEmail = req.session.user_id;
   for (const userID in users) {
     if (req.session.user_id === users[userID]["email"]) {
-      urlDatabase[randomString] = { longURL, userID };
+      urlDatabase[randomString] = { longURL, userID, userEmail};
     }
   }
 
@@ -144,7 +145,6 @@ const findUrlOfUser = (urlId, email) => {
   } else {
      const url = urlDatabase[urlId];
      return url;
-    //return {};
   }
 };
 
@@ -162,7 +162,10 @@ app.get("/urls/:shortURL", (req, res) => {
   const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
 
   let templateVars = {};
-  if (url.userID === urlDatabase[req.params.shortURL['userID']]) {
+  if (!req.session.user_id) {
+    return res.redirect("/error");
+  }
+  else if (req.session.user_id === urlDatabase[req.params.shortURL]['userEmail']) {    
     templateVars = {
       user_id: req.session.user_id,
       shortURL: req.params.shortURL,
@@ -171,7 +174,9 @@ app.get("/urls/:shortURL", (req, res) => {
       counterURL: counter[req.params.shortURL],
     };
     return res.render("urls_show", templateVars);
-  } else {
+  } else if (req.session.user_id !== urlDatabase[req.params.shortURL]['userEmail']) {
+    console.log('url.userID', url.userID);
+    console.log('urldatabase', urlDatabase[req.params.shortURL]['userID']);
     templateVars = {
       user_id: req.session.user_id,
       shortURL: req.params.shortURL,
@@ -179,9 +184,16 @@ app.get("/urls/:shortURL", (req, res) => {
       message: "You are not the original creator of this link!",
       counterURL: counter[req.params.shortURL],
     };
-  }
-  return res.render("urls_show", templateVars);
+    return res.render("urls_show", templateVars);
+  } 
+  
 });
+
+//Sends the user to a blank website that says hello
+app.get("/error", (req, res) => {
+  res.send("You do not have permission to view this page, please login");
+});
+
 
 //Sends the user to a blank website that says hello
 app.get("/", (req, res) => {
