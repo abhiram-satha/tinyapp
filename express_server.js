@@ -135,6 +135,7 @@ const findUser = (email) => {
   for (let user in users) {
     if (users[user].email === email) {
       foundUser = users[user];
+      //console.log(foundUser);
       break;
     }
   }
@@ -213,8 +214,12 @@ app.get("/u/:shortURL", (req, res) => {
 
 //POST Route to remove a URL resource
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if (!req.session.user_id) {
+    return res.redirect("/error");
+  }
   const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
-  if (url.userID) {
+  console.log('it is[',req.session.user_id)
+  if (url.userID === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     return res.redirect("/urls");
   }
