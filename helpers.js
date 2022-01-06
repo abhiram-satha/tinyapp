@@ -1,4 +1,4 @@
-const objectLoop = function (objectToLoop, email){
+const objectLoop =  (objectToLoop, email) => {
   for (const key in objectToLoop) {
     if (objectToLoop[key]["email"] === email) {
       return key;
@@ -7,7 +7,7 @@ const objectLoop = function (objectToLoop, email){
   return undefined;
 };
 
-const generateRandomString = function(length) {
+const generateRandomString = (length) => {
   const characters =
     "ABCDEFGHIJKLMNOPQRSTUVWXYXabcdefghijklmnopqrstuvwxyz0123456789";
 

@@ -15,14 +15,14 @@ const testUsers = {
   }
 };
 
-describe('getUserByEmail', function() {
-  it('should return a user with valid email', function() {
+describe('getUserByEmail', () => {
+  it('should return a user with valid email', () => {
     const user = objectLoop(testUsers, "user@example.com")
     const expectedOutput = "userRandomID";
 
     assert.strictEqual(user, expectedOutput)
   });
-  it('should return a user with valid email - test2', function() {
+  it('should return a user with valid email - test2', () => {
     const user = objectLoop(testUsers, "user2@example.com")
     const expectedOutput = "user2RandomID";
 

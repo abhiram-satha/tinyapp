@@ -14,7 +14,7 @@ app.use(cookieSession({
 }));
 
 
-const loginLoop = function(objectToLoop, email, password){
+const loginLoop = (objectToLoop, email, password) => {
   for (const key in objectToLoop) {
     if (objectToLoop[key]["email"] === email) {
       if (bcrypt.compareSync(password, objectToLoop[key]["password"])) {
