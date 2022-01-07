@@ -135,7 +135,6 @@ const findUser = (email) => {
   for (let user in users) {
     if (users[user].email === email) {
       foundUser = users[user];
-      //console.log(foundUser);
       break;
     }
   }
@@ -179,8 +178,6 @@ app.get("/urls/:shortURL", (req, res) => {
     };
     return res.render("urls_show", templateVars);
   } else if (req.session.user_id !== urlDatabase[req.params.shortURL]['userEmail']) {
-    console.log('url.userID', url.userID);
-    console.log('urldatabase', urlDatabase[req.params.shortURL]['userID']);
     templateVars = {
       user_id: req.session.user_id,
       shortURL: req.params.shortURL,
@@ -218,7 +215,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     return res.redirect("/error");
   }
   const url = findUrlOfUser(req.params.shortURL, req.session.user_id);
-  console.log('it is[',req.session.user_id)
   if (url.userID === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     return res.redirect("/urls");
